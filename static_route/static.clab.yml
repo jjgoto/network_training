@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/srl-labs/containerlab/refs/heads/main/schemas/clab.schema.json
+
+name: static
+
+mgmt:
+  network: clab_mgmt_static
+  ipv4-subnet: 192.168.0.0/16
+
+topology:
+  nodes:
+    sw1:
+      kind: arista_ceos
+      image: ceos:4.34.1F.EFT3
+      startup-config: ceos.sw1.cfg
+    sw2:
+      kind: arista_ceos
+      image: ceos:4.34.1F.EFT3
+      startup-config: ceos.sw2.cfg
+    pc1:
+      kind: linux
+      image: rockylinux:9
+      exec: 
+        - dnf update -y
+        - dnf install -y iputils iproute
+        - ip address add 192.168.10.1/24 dev eth1
+        - ip link set eth1 up
+        - ip route add 192.168.20.0/24 via 192.168.10.201
+        - ip route add 192.168.30.0/24 via 192.168.10.201
+        - ip route add 192.168.40.0/24 via 192.168.10.201
+        - ip route add 192.168.50.0/24 via 192.168.10.201
+        - ip route add 192.168.60.0/24 via 192.168.10.201
+    pc2:
+      kind: linux
+      image: rockylinux:9
+      exec: 
+        - dnf update -y
+        - dnf install -y iputils iproute
+        - ip address add 192.168.60.1/24 dev eth1
+        - ip link set eth1 up
+        - ip route add 192.168.10.0/24 via 192.168.60.204
+        - ip route add 192.168.20.0/24 via 192.168.60.204
+        - ip route add 192.168.30.0/24 via 192.168.60.204
+        - ip route add 192.168.40.0/24 via 192.168.60.204
+        - ip route add 192.168.50.0/24 via 192.168.60.204
+  links:
+    - endpoints: ["pc1:eth1", "sw2:eth1"]
+    - endpoints: ["pc2:eth1", "sw2:eth2"]
+    - endpoints: ["sw1:eth3", "sw2:eth3"]
+
